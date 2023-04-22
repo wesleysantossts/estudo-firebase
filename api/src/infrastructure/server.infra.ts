@@ -19,7 +19,7 @@ class Server {
 
   middlewares() {
     this.server.use('/api', cors(), express.json(), express.urlencoded({ extended: true }));
-    this.server.use('/storage', express.static(path.join(__dirname, '..', '..', 'storage')));
+    this.server.use('/storage', express.static(path.join(__dirname, '..', 'storage')));
   }
 
   controllers() {}
