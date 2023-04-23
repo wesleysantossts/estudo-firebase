@@ -20,6 +20,7 @@ class PostsController extends BaseController {
 
   async routes() {
     this.router.get('/post', this.getPost);
+    this.router.get('/posts', this.getAllPosts);
     this.router.post('/post', this.addPost);
   }
 
@@ -40,6 +41,31 @@ class PostsController extends BaseController {
     const { titulo, autor } = post.data();
 
     return res.json({ titulo, autor });
+  }
+
+  async getAllPosts(req: Request, res: Response) {
+    const postsRef = collection(db, "posts");
+    
+    // getDocs(collection) - pegar todos os documentos de uma coleção
+    const postsDocs: any = await getDocs(postsRef)
+    
+    // retorna uma array com os docs existentes, se tiver docs 
+    if (postsDocs && postsDocs.length === 0) return res.status(404).json({ success: false, message: "Não existem posts cadastrados" });
+    
+    const lista: object[] = [];
+
+    postsDocs.forEach((item: any) => {
+      const { titulo: tituloPost, autor: autorPost } = item.data();
+      
+      // id - ele é pego direto do item, não do ".data()"
+      lista.push({
+        id: item.id,
+        titulo: tituloPost,
+        autor: autorPost
+      });
+    })
+
+    return res.json({ success: true, amount: lista.length, posts: lista })
   }
 
   async addPost(req: Request, res: Response) {
@@ -66,6 +92,8 @@ class PostsController extends BaseController {
 
     return res.json({ success: true });
   }
+
+
 }
 
 export default PostsController;

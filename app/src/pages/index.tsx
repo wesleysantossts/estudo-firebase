@@ -76,27 +76,12 @@ const Home: React.FC = () => {
   }
 
   const getAllPosts = async () => {
-    const postsRef = collection(db, "posts");
-    // getDocs(collection) - pegar todos os documentos de uma coleção
-    const postsDocs = await getDocs(postsRef)
-    
-    // retorna uma array com os docs existentes, se tiver docs 
-    if (postsDocs && postsDocs.length === 0) return alert("Não existem posts cadastrados")
-    
-    const lista: object[] = [];
+    const response = await API.getAllPosts();
+    console.log("🚀 ~ file: index.tsx:100 ~ getAllPosts ~ response:", response)
 
-    postsDocs.forEach(item => {
-      const { titulo: tituloPost, autor: autorPost } = item.data();
-      
-      // id - ele é pego direto do item, não do ".data()"
-      lista.push({
-        id: item.id,
-        titulo: tituloPost,
-        autor: autorPost
-      });
-    })
+    if (!response.success) return alert("Erro ao listar todos os posts");
 
-    setPosts(lista);
+    setPosts(response.posts);
   }
   
   const updatePost = async () => {

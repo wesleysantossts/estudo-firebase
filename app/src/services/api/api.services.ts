@@ -16,7 +16,10 @@ export default class APIAdapter implements IAPI {
 
   // Posts
   async getPost(idPost: any): Promise<any> {
-    const { data } = await this.client.get(`/post?idPost=${idPost}`);
+    const payload = new URLSearchParams({
+      idPost
+    });
+    const { data } = await this.client.get(`/post?${payload}`);
     return data;
   }
 
@@ -25,9 +28,13 @@ export default class APIAdapter implements IAPI {
       titulo,
       autor
     };
-
     const { data } = await this.client.post('/post', payload)
-    
+    return data;
+  }
+
+  async getAllPosts() {
+    const { data } = await this.client.get('/posts');
+
     return data;
   }
 }
