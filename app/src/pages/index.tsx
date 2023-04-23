@@ -55,20 +55,9 @@ const Home: React.FC = () => {
   const addPost = async () => {
     if (!titulo || !autor) return alert("Preencha os campos titulo e autor");
 
-    // Cria com o id que eu definir. Se já houver o id, ele atualizará os dados
-    // - doc(configsDb, collection, docId) - cria uma referência do documento
-    // await setDoc(doc(db, "posts", "123456"), {
-    //   titulo: titulo,
-    //   autor: autor
-    // });
+    const response = await API.addPost(titulo, autor);
 
-    // Cria com o id aleatório (ideal para criação de dados)
-    // - collection(configDb, collection) - cria uma referencia da coleção que quero add o documento
-    await addDoc(collection(db, "posts"), {
-      titulo,
-      autor
-    })
-    .catch(err => alert('Erro ao criar o post'));
+    if (!response.success) return alert('Erro ao criar o post');
 
     setTitulo('');
     setAutor('');

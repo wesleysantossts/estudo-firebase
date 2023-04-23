@@ -19,4 +19,15 @@ export default class APIAdapter implements IAPI {
     const { data } = await this.client.get(`/post?idPost=${idPost}`);
     return data;
   }
+
+  async addPost(titulo: any, autor: any): Promise<any> {
+    const payload = {
+      titulo,
+      autor
+    };
+
+    const { data } = await this.client.post('/post', payload)
+    
+    return data;
+  }
 }
