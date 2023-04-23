@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container } from './styles';
-import { db } from '../config/db';
+import { db, auth } from '../config/db';
 import { 
   doc, 
   collection, 
@@ -12,12 +12,18 @@ import {
   deleteDoc,
   onSnapshot 
 } from 'firebase/firestore';
+import {
+  createUserWithEmailAndPassword
+} from 'firebase/auth';
 
 const Home: React.FC = () => {
   const [idPost, setIdPost] = useState('');
   const [titulo, setTitulo] = useState('');
   const [autor, setAutor] = useState('');
   const [posts, setPosts] = useState<object[]>([]);
+
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
 
   useEffect(() => {
     (function loadPosts() {
@@ -129,10 +135,41 @@ const Home: React.FC = () => {
     alert("Post deletado com sucesso!");
   }
 
+  const cadastrarUsuario = async () => {
+    if (!email || !senha) return alert("Insira um email e uma senha");
+    
+    // createUserWithEmailAndPassword(configsAuth, email, senha) - usado para criar a autenticação do firebase
+    const response: any = await createUserWithEmailAndPassword(auth, email, senha)
+    .catch(error => {
+      if (error.code === "auth/weak-password") return alert("Senha muito fraca");
+      if (error.code === "auth/email-already-in-use") return alert("Email já existe");
+      return alert("Erro ao cadastrar o usuário")
+    })
+
+    if (!response || !response.user) return;
+
+    const { user: { uid } } = response;
+
+    setEmail('');
+    setSenha('');
+    alert("Usuário cadastrado com sucesso!")
+  }
+
   return (
     <Container>
       <h1>React + Firebase</h1>
+      <div className="form user">
+        <h2>Usuário</h2>
+        <label htmlFor="email">Email</label>
+        <input type="text" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} />
+        <label htmlFor="senha">Senha</label>
+        <input type="text" name="senha" id="senha"  value={senha} onChange={e => setSenha(e.target.value)} />
+        <button onClick={() => cadastrarUsuario()}>Cadastrar</button>
+        <br /><br />
+      </div>
       <div className="form">
+        <hr /><br />
+        <h2>Posts</h2>
         <label htmlFor="id">ID do Post</label>
         <input id="id" type="text" maxLength={160} value={idPost} onChange={e => setIdPost(e.target.value)} /><br />
         <label htmlFor="titulo">Titulo</label>
@@ -143,10 +180,9 @@ const Home: React.FC = () => {
         <button onClick={getPost}>Buscar Post</button>
         <button onClick={getAllPosts}>Buscar Posts</button><br /><br />
         <button onClick={updatePost}>Atualizar Post</button>
-        <br /><hr />
+        <br />
       </div>
       <div className="posts">
-        <h2>Posts</h2>
         <ul>
           {posts && posts.map((item, index) => {
             return(

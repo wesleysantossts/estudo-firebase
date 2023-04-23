@@ -1,31 +1,49 @@
-import express, { Express, Router } from 'express';
+import express, { Router } from 'express';
 import cors from 'cors';
 import path from 'path';
-import dotenv from 'dotenv';
-dotenv.config();
+import fs from 'fs';
 
-const PORT = process.env.PORT;
-
-export class Server {
-  private readonly server: Express;
+class Server {
+  private readonly server: express.Application;
+  private readonly basePathApi = '/api';
+  private readonly basePathStorage = '/storage';
+  private readonly basePathControllers = '/controllers';
   constructor() {
     this.server = express();
-    this.initialize();
   }
 
   initialize() {
     this.middlewares();
+    this.controllers();
     this.listen();
   }
 
   middlewares(): void {
-    this.server.use('/api', cors(), express.json(), express.urlencoded({ extended: true }));
-    this.server.use('/storage', express.static(path.join(__dirname, '..', 'storage')));
+    this.server.use(cors(), express.json(), express.urlencoded({ extended: true }));
+    this.server.use(this.basePathStorage, express.static(path.join(__dirname, '..', this.basePathStorage)));
   }
 
-  controllers() {}
+  private async controllers() {
+    const router: Router[] = [];
+    const controllersPath = path.join(__dirname, '..', this.basePathControllers);
+    const files = fs.readdirSync(controllersPath);
+    if (files.length > 0) {
+      for (const file of files) {
+        const controller = await import(path.join(controllersPath, file));
+        const initializedController = new controller.default();
+        if (initializedController.routes) {
+          initializedController.routes();
+          router.push(initializedController.router);
+        }
+      }
+
+      this.server.use(this.basePathApi, router);
+    }
+  }
   
-  listen(): void {
-    this.server.listen(PORT);
+  listen() {
+    this.server.listen(process.env.PORT, () => console.log(`Servidor rodando na porta ${process.env.PORT}`));
   }
 }
+
+export default Server;
