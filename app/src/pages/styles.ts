@@ -4,6 +4,7 @@ export const Container = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  padding: 20px 40px;
 
   .form {
     display: flex;
@@ -19,9 +20,15 @@ export const Container = styled.div`
       margin: 0 0 20px 0;
     }
 
-    li {
-      margin: 0 0 15px 10px;
+    ul {
       list-style: disc;
+      padding: 0 15px;
+    }
+
+    li {
+      display: flex;
+      flex-direction: column;
+      margin: 0 0 15px 10px;
     }
   }
 `;
