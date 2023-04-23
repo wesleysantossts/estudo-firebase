@@ -37,4 +37,10 @@ export default class APIAdapter implements IAPI {
 
     return data;
   }
+
+  async updatePost(payload: object) {
+    const { data } = await this.client.put('/post', payload);
+
+    return data;
+  }
 }

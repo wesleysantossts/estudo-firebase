@@ -21,6 +21,7 @@ class PostsController extends BaseController {
   async routes() {
     this.router.get('/post', this.getPost);
     this.router.get('/posts', this.getAllPosts);
+    this.router.put('/post', this.updatePost);
     this.router.post('/post', this.addPost);
   }
 
@@ -45,7 +46,7 @@ class PostsController extends BaseController {
 
   async getAllPosts(req: Request, res: Response) {
     const postsRef = collection(db, "posts");
-    
+
     // getDocs(collection) - pegar todos os documentos de uma coleção
     const postsDocs: any = await getDocs(postsRef)
     
@@ -66,6 +67,24 @@ class PostsController extends BaseController {
     })
 
     return res.json({ success: true, amount: lista.length, posts: lista })
+  }
+
+  async updatePost(req: Request, res: Response) {
+    const { idPost, titulo, autor } = req.body;
+
+    if (!idPost) return res.status(300).json({ success: false, message: "Insira um id para o post" });
+    
+    const refPost = doc(db, "posts", idPost);
+
+    await updateDoc(refPost, {
+      titulo,
+      autor
+    })
+    .catch(error => {
+      return res.status(500).json({ success: false, message: "Erro ao atualizar o post" });
+    });
+
+    return res.json({ success: true });
   }
 
   async addPost(req: Request, res: Response) {

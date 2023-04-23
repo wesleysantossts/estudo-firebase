@@ -77,7 +77,6 @@ const Home: React.FC = () => {
 
   const getAllPosts = async () => {
     const response = await API.getAllPosts();
-    console.log("🚀 ~ file: index.tsx:100 ~ getAllPosts ~ response:", response)
 
     if (!response.success) return alert("Erro ao listar todos os posts");
 
@@ -85,13 +84,16 @@ const Home: React.FC = () => {
   }
   
   const updatePost = async () => {
-    const refPost = doc(db, "posts", idPost);
+    if (!idPost) return alert("Insira um id para atualizar");
 
-    await updateDoc(refPost, {
+    const payload = {
+      idPost,
       titulo,
       autor
-    })
-    .catch(error => alert("Erro ao atualizar o post"));
+    };
+    const response = await API.updatePost(payload);
+
+    if (!response.success) return alert("Erro ao tentar atualizar o post");
   }
 
   const excluirPost = async (id: any) => {
