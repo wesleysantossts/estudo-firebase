@@ -15,8 +15,10 @@ import {
 import {
   createUserWithEmailAndPassword
 } from 'firebase/auth';
+import APIAdapter from 'services/api/api.services';
 
 const Home: React.FC = () => {
+  const API = new APIAdapter();
   const [idPost, setIdPost] = useState('');
   const [titulo, setTitulo] = useState('');
   const [autor, setAutor] = useState('');
@@ -77,19 +79,11 @@ const Home: React.FC = () => {
   const getPost = async () => {
     if (!idPost) return alert("Insira um ID");
 
-    // Criar sempre uma referência pois torna o código menos verboso
-    const postRef = doc(db, "posts", idPost);
+    const response = await API.getPost(idPost);
+    if (!response) return alert("Erro ao buscar o post");
     
-    // Buscar um documento no banco a partir de uma referência 
-    const post: any = await getDoc(postRef);
-
-    // retorna um ".data()" com os campos do documento
-    if (!post.data()) return alert("Erro ao buscar o post");
-
-    const { titulo: tituloPost, autor: autorPost } = post.data();
-    
-    setTitulo(tituloPost);
-    setAutor(autorPost);
+    setTitulo(response.titulo);
+    setAutor(response.autor);
   }
 
   const getAllPosts = async () => {
@@ -184,7 +178,7 @@ const Home: React.FC = () => {
       </div>
       <div className="posts">
         <ul>
-          {posts && posts.map((item, index) => {
+          {posts && posts.map((item: any, index) => {
             return(
               <li key={index}>
                 <span><strong>ID do post</strong>: {item.id}</span> 
