@@ -43,4 +43,10 @@ export default class APIAdapter implements IAPI {
 
     return data;
   }
+
+  async deletePost(payload: object) {
+    const { data } = await this.client.delete(`/post/${payload.id}`);
+
+    return data;
+  }
 }

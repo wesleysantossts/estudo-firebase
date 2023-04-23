@@ -97,10 +97,10 @@ const Home: React.FC = () => {
   }
 
   const excluirPost = async (id: any) => {
-    const postRef = doc(db, "posts", id);
+    const payload = { id: id };
+    const response: any = await API.deletePost(payload);
 
-    await deleteDoc(postRef)
-      .catch(error => alert("Erro ao deletar o post"));
+    if (!response || !response.success) return alert("Erro ao tentar deletar o post");
 
     alert("Post deletado com sucesso!");
   }

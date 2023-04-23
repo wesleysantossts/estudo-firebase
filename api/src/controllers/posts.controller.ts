@@ -23,6 +23,7 @@ class PostsController extends BaseController {
     this.router.get('/posts', this.getAllPosts);
     this.router.put('/post', this.updatePost);
     this.router.post('/post', this.addPost);
+    this.router.delete('/post/:id', this.deletePost);
   }
 
   async getPost(req: Request, res: Response): Promise<any> {
@@ -112,7 +113,18 @@ class PostsController extends BaseController {
     return res.json({ success: true });
   }
 
+  async deletePost(req: Request, res: Response) {
+    const { id } = req.params;
 
+    const postRef = doc(db, "posts", id);
+
+    await deleteDoc(postRef)
+    .catch(error => {
+      return res.status(500).json({ success: false, error: error.message, message: "Erro ao deletar o post" })
+    });
+
+    return res.json({ success: true });
+  }
 }
 
 export default PostsController;
