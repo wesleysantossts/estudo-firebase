@@ -1,4 +1,4 @@
-import { Server } from '@infrastructure/server.infra';
+import Server from '@infrastructure/server.infra';
 
 class App {
   private readonly server: Server;

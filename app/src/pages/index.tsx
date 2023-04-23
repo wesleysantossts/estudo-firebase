@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container } from './styles';
-import { db } from '../config/db';
+import { db, auth } from '../config/db';
 import { 
   doc, 
   collection, 
@@ -12,12 +12,20 @@ import {
   deleteDoc,
   onSnapshot 
 } from 'firebase/firestore';
+import {
+  createUserWithEmailAndPassword
+} from 'firebase/auth';
+import APIAdapter from 'services/api/api.services';
 
 const Home: React.FC = () => {
+  const API = new APIAdapter();
   const [idPost, setIdPost] = useState('');
   const [titulo, setTitulo] = useState('');
   const [autor, setAutor] = useState('');
   const [posts, setPosts] = useState<object[]>([]);
+
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
 
   useEffect(() => {
     (function loadPosts() {
@@ -71,19 +79,11 @@ const Home: React.FC = () => {
   const getPost = async () => {
     if (!idPost) return alert("Insira um ID");
 
-    // Criar sempre uma referência pois torna o código menos verboso
-    const postRef = doc(db, "posts", idPost);
+    const response = await API.getPost(idPost);
+    if (!response) return alert("Erro ao buscar o post");
     
-    // Buscar um documento no banco a partir de uma referência 
-    const post: any = await getDoc(postRef);
-
-    // retorna um ".data()" com os campos do documento
-    if (!post.data()) return alert("Erro ao buscar o post");
-
-    const { titulo: tituloPost, autor: autorPost } = post.data();
-    
-    setTitulo(tituloPost);
-    setAutor(autorPost);
+    setTitulo(response.titulo);
+    setAutor(response.autor);
   }
 
   const getAllPosts = async () => {
@@ -129,10 +129,41 @@ const Home: React.FC = () => {
     alert("Post deletado com sucesso!");
   }
 
+  const cadastrarUsuario = async () => {
+    if (!email || !senha) return alert("Insira um email e uma senha");
+    
+    // createUserWithEmailAndPassword(configsAuth, email, senha) - usado para criar a autenticação do firebase
+    const response: any = await createUserWithEmailAndPassword(auth, email, senha)
+    .catch(error => {
+      if (error.code === "auth/weak-password") return alert("Senha muito fraca");
+      if (error.code === "auth/email-already-in-use") return alert("Email já existe");
+      return alert("Erro ao cadastrar o usuário")
+    })
+
+    if (!response || !response.user) return;
+
+    const { user: { uid } } = response;
+
+    setEmail('');
+    setSenha('');
+    alert("Usuário cadastrado com sucesso!")
+  }
+
   return (
     <Container>
       <h1>React + Firebase</h1>
+      <div className="form user">
+        <h2>Usuário</h2>
+        <label htmlFor="email">Email</label>
+        <input type="text" name="email" id="email" value={email} onChange={e => setEmail(e.target.value)} />
+        <label htmlFor="senha">Senha</label>
+        <input type="text" name="senha" id="senha"  value={senha} onChange={e => setSenha(e.target.value)} />
+        <button onClick={() => cadastrarUsuario()}>Cadastrar</button>
+        <br /><br />
+      </div>
       <div className="form">
+        <hr /><br />
+        <h2>Posts</h2>
         <label htmlFor="id">ID do Post</label>
         <input id="id" type="text" maxLength={160} value={idPost} onChange={e => setIdPost(e.target.value)} /><br />
         <label htmlFor="titulo">Titulo</label>
@@ -143,12 +174,11 @@ const Home: React.FC = () => {
         <button onClick={getPost}>Buscar Post</button>
         <button onClick={getAllPosts}>Buscar Posts</button><br /><br />
         <button onClick={updatePost}>Atualizar Post</button>
-        <br /><hr />
+        <br />
       </div>
       <div className="posts">
-        <h2>Posts</h2>
         <ul>
-          {posts && posts.map((item, index) => {
+          {posts && posts.map((item: any, index) => {
             return(
               <li key={index}>
                 <span><strong>ID do post</strong>: {item.id}</span> 

@@ -10,15 +10,16 @@ export const Container = styled.div`
     display: flex;
     flex-direction: column;
     max-width: 300px;
+    
+    h2 {
+      margin: 15px 0;
+    }
   }
 
   .posts {
     margin: 20px 0;
     max-width: 300px;
 
-    h2 {
-      margin: 0 0 20px 0;
-    }
 
     ul {
       list-style: disc;

@@ -6,11 +6,17 @@ interface IAPI {
 }
 
 export default class APIAdapter implements IAPI {
-  public readonly client: AxiosInstance;
+  public client: AxiosInstance;
 
   constructor() {
     this.client = axios.create({
-      baseURL: process.env.NEXT_URL_API
-    })
+      baseURL: process.env.NEXT_PUBLIC_URL_API
+    });
+  }
+
+  // Posts
+  async getPost(idPost: any): Promise<any> {
+    const { data } = await this.client.get(`/post?idPost=${idPost}`);
+    return data;
   }
 }
