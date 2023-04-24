@@ -38,6 +38,14 @@ export default class APIAdapter implements IAPI {
     return data;
   }
 
+  async getAllPostsOnsnapshot() {
+    const response = await this.client.get('/posts/onsnapshot');
+
+    if (!response) return;
+
+    return response.data;
+  }
+
   async updatePost(payload: object) {
     const { data } = await this.client.put('/post', payload);
 

@@ -1,20 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Container } from './styles';
-import { db, auth } from '../config/db';
-import { 
-  doc, 
-  collection, 
-  setDoc, 
-  addDoc, 
-  getDoc, 
-  getDocs, 
-  updateDoc, 
-  deleteDoc,
-  onSnapshot 
-} from 'firebase/firestore';
-import {
-  createUserWithEmailAndPassword
-} from 'firebase/auth';
 import APIAdapter from 'services/api/api.services';
 
 const Home: React.FC = () => {
@@ -29,27 +14,12 @@ const Home: React.FC = () => {
   const [uid, setUid] = useState('');
 
   useEffect(() => {
-    (function loadPosts() {
-      const postsRef = collection(db, "posts");
-
-      // onSnapshot(collection, callback) - usado para bater no banco toda hora pra saber se teve alguma atualização (real time). Deve-se usar com cautela, não usando em toda a aplicação (só em lugares necessários mesmo) pra não pesar a aplicação e gastar requisição mais do que o necessário.
-      // - é um método síncrono
-      onSnapshot(postsRef, (snapshot) => {
-        let lista: object[] = [];
-
-        snapshot.forEach(item => {
-          const { titulo: tituloPost, autor: autorPost } = item.data();
-          
-          // id - ele é pego direto do item, não do ".data()"
-          lista.push({
-            id: item.id,
-            titulo: tituloPost,
-            autor: autorPost
-          });
-        })
-
-        setPosts(lista);
-      })
+    (async function loadPosts() {
+      const response = await API.getAllPostsOnsnapshot();
+      
+      if (!response) return;
+      
+      setPosts(response.lista);
     })();
   }, [])
 

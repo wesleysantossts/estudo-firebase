@@ -21,6 +21,7 @@ class PostsController extends BaseController {
   async routes() {
     this.router.get('/post', this.getPost);
     this.router.get('/posts', this.getAllPosts);
+    this.router.get('/posts/onsnapshot', this.getAllPostsOnsnapshot);
     this.router.put('/post', this.updatePost);
     this.router.post('/post', this.addPost);
     this.router.delete('/post/:id', this.deletePost);
@@ -68,6 +69,31 @@ class PostsController extends BaseController {
     })
 
     return res.json({ success: true, amount: lista.length, posts: lista })
+  }
+
+  async getAllPostsOnsnapshot(req: Request, res: Response) {
+    const postsRef = collection(db, "posts");
+    
+    
+    // onSnapshot(collection, callback) - usado para bater no banco toda hora pra saber se teve alguma atualização (real time). Deve-se usar com cautela, não usando em toda a aplicação (só em lugares necessários mesmo) pra não pesar a aplicação e gastar requisição mais do que o necessário.
+    // - é um método síncrono
+    onSnapshot(postsRef, (snapshot) => {
+      let lista: object[] = [];
+      
+      snapshot.forEach(item => {
+        const { titulo: tituloPost, autor: autorPost } = item.data();
+        
+        // id - ele é pego direto do item, não do ".data()"
+        lista.push({
+          id: item.id,
+          titulo: tituloPost,
+          autor: autorPost
+        });
+      })
+      
+      return res.json({ success: true, lista });
+    })
+    
   }
 
   async updatePost(req: Request, res: Response) {
