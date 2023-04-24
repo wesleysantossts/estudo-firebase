@@ -49,4 +49,17 @@ export default class APIAdapter implements IAPI {
 
     return data;
   }
+
+  // Usuários
+  async cadastrarUsuario(payload: object) {
+    const response: any = await this.client.post('/usuario/novo', payload)
+    .catch(error => {
+      console.log('Erro ao cadastrar o usuario', error)
+      return error.response.data;
+    });
+
+    if (!response.data && response.message) return response;
+
+    return response.data;
+  }
 }

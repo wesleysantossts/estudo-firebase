@@ -26,6 +26,7 @@ const Home: React.FC = () => {
 
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [uid, setUid] = useState('');
 
   useEffect(() => {
     (function loadPosts() {
@@ -108,17 +109,12 @@ const Home: React.FC = () => {
   const cadastrarUsuario = async () => {
     if (!email || !senha) return alert("Insira um email e uma senha");
     
-    // createUserWithEmailAndPassword(configsAuth, email, senha) - usado para criar a autenticação do firebase
-    const response: any = await createUserWithEmailAndPassword(auth, email, senha)
-    .catch(error => {
-      if (error.code === "auth/weak-password") return alert("Senha muito fraca");
-      if (error.code === "auth/email-already-in-use") return alert("Email já existe");
-      return alert("Erro ao cadastrar o usuário")
-    })
+    const response = await API.cadastrarUsuario({ email, senha });
 
-    if (!response || !response.user) return;
+    if (response && response.message) return alert(response.message);
 
-    const { user: { uid } } = response;
+    const { uid } = response;
+    setUid(uid);
 
     setEmail('');
     setSenha('');
