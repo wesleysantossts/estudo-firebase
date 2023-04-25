@@ -83,4 +83,10 @@ export default class APIAdapter implements IAPI {
 
     return response.data;
   }
+
+  async logout() {
+    const response = await this.client.post('/usuario/logout');
+
+    return response.data;
+  }
 }

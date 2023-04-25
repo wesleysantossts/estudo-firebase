@@ -104,6 +104,13 @@ const Home: React.FC = () => {
     alert('Usuário logado com sucesso!')
   }
 
+  const deslogarUsuario = async () => {
+    await API.logout();
+
+    setUser('');
+    alert('Usuário deslogado com sucesso!')
+  }
+
   return (
     <Container>
       <h1>React + Firebase</h1>
@@ -116,6 +123,7 @@ const Home: React.FC = () => {
         <input type="text" name="senha" id="senha"  value={senha} onChange={e => setSenha(e.target.value)} />
         <button onClick={() => cadastrarUsuario()}>Cadastrar</button>
         <button onClick={() => logarUsuario()}>Login</button>
+        <button onClick={() => deslogarUsuario()}>Logout</button>
         <br /><br />
       </div>
       <div>

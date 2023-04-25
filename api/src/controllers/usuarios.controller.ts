@@ -3,7 +3,8 @@ import { Request, Response, NextFunction } from 'express';
 import { auth } from 'config/db';
 import { 
   createUserWithEmailAndPassword,
-  signInWithEmailAndPassword 
+  signInWithEmailAndPassword,
+  signOut 
 } from 'firebase/auth';
 import { ErrorHandle, CatchErrorHandle, ValidationErrorHandle } from '@infrastructure/errors.infra';
 
@@ -13,8 +14,9 @@ class UsuariosController extends BaseController {
   }
 
   async routes() {
-    this.router.post('/usuario/login', this.logarUsuario);
     this.router.post('/usuario/novo', this.cadastrarUsuario);
+    this.router.post('/usuario/login', this.logarUsuario);
+    this.router.post('/usuario/logout', this.deslogarUsuario);
   }
 
   async cadastrarUsuario(req: Request, res: Response): Promise<any> {
@@ -56,6 +58,11 @@ class UsuariosController extends BaseController {
     const user = response.user;
 
     return res.json(user);
+  }
+
+  async deslogarUsuario() {
+    await signOut(auth);
+    return true;
   }
 }
 
