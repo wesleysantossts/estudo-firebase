@@ -51,7 +51,7 @@ class UsuariosController extends BaseController {
 
     const response = await signInWithEmailAndPassword(auth, email, senha).catch(error => new CatchErrorHandle('Erro ao tentar logar o usuário'));
     
-    if (response && !response.success) return res.status(400).json({ success: false, message: "Erro ao tentar logar o usuário" });
+    if (response && response.success === false) return res.status(400).json({ success: false, message: "Erro ao tentar logar o usuário" });
     
     const user = response.user;
 

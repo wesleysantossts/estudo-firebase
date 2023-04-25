@@ -74,7 +74,10 @@ export default class APIAdapter implements IAPI {
   async login(payload: object) {
     const { email, senha } = payload as any;
 
-    const response = await this.client.post('/usuario/login', { email, senha });
+    const response = await this.client.post('/usuario/login', { email, senha })
+      .catch(error => {
+        return null
+      });
 
     if (!response) return null;
 
