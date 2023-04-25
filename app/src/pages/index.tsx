@@ -12,6 +12,8 @@ const Home: React.FC = () => {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [uid, setUid] = useState('');
+  const [user, setUser] = useState('');
+  const [details, setDetails] = useState('');
 
   useEffect(() => {
     (async function loadPosts() {
@@ -91,9 +93,21 @@ const Home: React.FC = () => {
     alert("Usuário cadastrado com sucesso!")
   }
 
+  const logarUsuario = async () => {
+    if (!email || !senha) return alert('Insira um email e uma senha');
+
+    const response = await API.login({ email, senha });
+
+    if (!response) return alert('Não existe usuários com esses dados');
+
+    setUser(response);
+    alert('Usuário logado com sucesso!')
+  }
+
   return (
     <Container>
       <h1>React + Firebase</h1>
+      
       <div className="form user">
         <h2>Usuário</h2>
         <label htmlFor="email">Email</label>
@@ -101,8 +115,13 @@ const Home: React.FC = () => {
         <label htmlFor="senha">Senha</label>
         <input type="text" name="senha" id="senha"  value={senha} onChange={e => setSenha(e.target.value)} />
         <button onClick={() => cadastrarUsuario()}>Cadastrar</button>
+        <button onClick={() => logarUsuario()}>Login</button>
         <br /><br />
       </div>
+      <div>
+        <p>UID: {user.uid}</p>
+        <p>Email: {user.email}</p>
+      </div><br />
       <div className="form">
         <hr /><br />
         <h2>Posts</h2>

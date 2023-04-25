@@ -1,8 +1,11 @@
 import BaseController from './base.controller';
 import { Request, Response, NextFunction } from 'express';
 import { auth } from 'config/db';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { ErrorHandle, CatchErrorHandle } from '@infrastructure/errors.infra';
+import { 
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword 
+} from 'firebase/auth';
+import { ErrorHandle, CatchErrorHandle, ValidationErrorHandle } from '@infrastructure/errors.infra';
 
 class UsuariosController extends BaseController {
   constructor () {
@@ -10,7 +13,8 @@ class UsuariosController extends BaseController {
   }
 
   async routes() {
-    this.router.post('/usuario/novo', this.cadastrarUsuario)
+    this.router.post('/usuario/login', this.logarUsuario);
+    this.router.post('/usuario/novo', this.cadastrarUsuario);
   }
 
   async cadastrarUsuario(req: Request, res: Response): Promise<any> {
@@ -38,6 +42,20 @@ class UsuariosController extends BaseController {
     const { user: { uid } } = response;
 
     return res.json({ success: true, uid });
+  }
+
+  async logarUsuario(req: Request, res: Response) {
+    const { email, senha } = req.body;
+
+    if (!email && !senha) return new ValidationErrorHandle(400, "Insira o email e a senha");
+
+    const response = await signInWithEmailAndPassword(auth, email, senha).catch(error => new CatchErrorHandle('Erro ao tentar logar o usuário'));
+    
+    if (response && !response.success) return res.status(400).json({ success: false, message: "Erro ao tentar logar o usuário" });
+    
+    const user = response.user;
+
+    return res.json(user);
   }
 }
 
