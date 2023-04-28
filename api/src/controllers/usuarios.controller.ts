@@ -2,9 +2,10 @@ import BaseController from './base.controller';
 import { Request, Response, NextFunction } from 'express';
 import { auth } from 'config/db';
 import { 
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut 
+  createUserWithEmailAndPassword, // usado para criar o usuário com email e senha
+  signInWithEmailAndPassword, // usado para logar o usuário com email e senha
+  signOut, // usado para deslogar o usuário
+  onAuthStateChanged // usado para conferir se tem alguém logado
 } from 'firebase/auth';
 import { ErrorHandle, CatchErrorHandle, ValidationErrorHandle } from '@infrastructure/errors.infra';
 
@@ -17,6 +18,7 @@ class UsuariosController extends BaseController {
     this.router.post('/usuario/novo', this.cadastrarUsuario);
     this.router.post('/usuario/login', this.logarUsuario);
     this.router.post('/usuario/logout', this.deslogarUsuario);
+    this.router.get(`/usuario/logado`, this.checarLogin);
   }
 
   async cadastrarUsuario(req: Request, res: Response): Promise<any> {
@@ -51,7 +53,7 @@ class UsuariosController extends BaseController {
 
     if (!email && !senha) return new ValidationErrorHandle(400, "Insira o email e a senha");
 
-    const response = await signInWithEmailAndPassword(auth, email, senha).catch(error => new CatchErrorHandle('Erro ao tentar logar o usuário'));
+    const response: any = await signInWithEmailAndPassword(auth, email, senha).catch(error => new CatchErrorHandle('Erro ao tentar logar o usuário'));
     
     if (response && response.success === false) return res.status(400).json({ success: false, message: "Erro ao tentar logar o usuário" });
     
@@ -60,9 +62,22 @@ class UsuariosController extends BaseController {
     return res.json(user);
   }
 
-  async deslogarUsuario() {
-    await signOut(auth);
-    return true;
+  async deslogarUsuario(req: Request, res: Response) {
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        return res.json({ success: false });
+      }
+      await signOut(auth);
+      return res.json({ success: true });
+    })
+  }
+
+  async checarLogin(req: Request, res: Response) {
+    onAuthStateChanged(auth, (user) => {
+      if (!user) return res.status(400).json({ success: false, message: 'Usuário não encontrado' });
+      return res.json(user);
+
+    })
   }
 }
 

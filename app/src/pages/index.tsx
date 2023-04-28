@@ -23,6 +23,17 @@ const Home: React.FC = () => {
       
       setPosts(response.lista);
     })();
+
+    (async function verificarUsuarioLogado() {
+      const user = await API.checarUsuarioLogado()
+        .catch(err => {
+          return null;
+        });
+      
+      if (user) {
+        setUser(user);
+      }
+    })();
   }, [])
 
   const addPost = async () => {
@@ -105,7 +116,9 @@ const Home: React.FC = () => {
   }
 
   const deslogarUsuario = async () => {
-    await API.logout();
+    const response = await API.logout();
+
+    if (!response.success) return alert('Não há usuário logado');
 
     setUser('');
     alert('Usuário deslogado com sucesso!')

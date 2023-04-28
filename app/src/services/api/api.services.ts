@@ -89,4 +89,14 @@ export default class APIAdapter implements IAPI {
 
     return response.data;
   }
+
+  async checarUsuarioLogado() {
+    const response = await this.client.get('/usuario/logado')
+      .catch(error => {
+        return null
+      });;
+     if (!response) return null;
+
+    return response.data;
+  }
 }
